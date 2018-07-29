@@ -30,7 +30,7 @@ contract SimpleBank {
 
     /// @notice Deposit ether into bank
     /// @return The balance of the user after the deposit is made
-    // Add the appropriate keyword so that this function can receive ether
+    /// Add the appropriate keyword so that this function can receive ether
     function deposit() public payable returns (uint) {
         /* Add the amount to the user's balance, call the event associated with a deposit,
           then return the balance of the user */
@@ -73,7 +73,7 @@ contract SimpleBank {
     // Typically, called when invalid data is sent
     // Added so ether sent to this contract is reverted if the contract fails
     // otherwise, the sender's money is transferred to contract
-    function() payable public {
+    function() public payable {
         revert(); //The same behaviour if made not payable or if fallback omitted
     }
 }
