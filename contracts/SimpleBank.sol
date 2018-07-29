@@ -2,6 +2,7 @@ pragma solidity ^0.4.22;
 
 
 contract SimpleBank {
+    uint8 private clientCount;
 
     // Fill in the keyword. Hint: We want to protect our users balance from other contracts
     mapping (address => uint) private balances;
@@ -14,19 +15,23 @@ contract SimpleBank {
     event LogDepositMade(address indexed accountAddress, uint amount);
 
     // Constructor, can receive one or many variables here; only one allowed
-    constructor() public {
+    // Initial funding of 30 required to reward the first 3 clients
+    constructor() public payable {
+        require(msg.value == 30, "Initial funding of 30 required for rewards");
         /* Set the owner to the creator of this contract */
         owner = msg.sender;
+        clientCount = 0;
     }
 
-    // @notice Enroll a customer with the bank, giving them 1000 tokens for free
+    // @notice Enroll a customer with the bank, giving the first 3 of them 10 token for free
     // @return The balance of the user after enrolling
-    /* Does not make sense as then deposited value greater than real!!!
     function enroll() public returns (uint) {
-      /* Set the sender's balance to 1000, return the sender's balance
-        balances[msg.sender] = 1000;
+        if (clientCount < 3) {
+            clientCount++;
+            balances[msg.sender] = 10;
+        }
         return balances[msg.sender];
-    }*/
+    }
 
     /// @notice Deposit ether into bank
     /// @return The balance of the user after the deposit is made
@@ -64,7 +69,7 @@ contract SimpleBank {
         return balances[msg.sender];
     }
 
-    function bankBalance() public constant returns (uint) {
+    function depositsBalance() public constant returns (uint) {
         return address(this).balance;
     }
 
