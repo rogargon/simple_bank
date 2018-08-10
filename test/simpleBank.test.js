@@ -1,7 +1,8 @@
 var SimpleBank = artifacts.require("./SimpleBank.sol");
 
-const reward = 10;
-const initialDepositsBalance = 30;
+const ether = 10**18; // 1 ether = 1000000000000000000 wei
+const reward = 10 * ether;
+const initialDepositsBalance = 30 * ether;
 
 contract("SimpleBank - basic initialization", function(accounts) {
   const alice = accounts[1];
@@ -34,7 +35,7 @@ contract("SimpleBank - basic initialization", function(accounts) {
 
   it("should deposit correct amount", async () => {
     const bank = await SimpleBank.deployed();
-    const deposit = 2;
+    const deposit = 2 * ether;
 
     await bank.deposit({from: alice, value: web3.toBigNumber(deposit)});
 
@@ -67,7 +68,7 @@ contract("SimpleBank - proper withdrawal", function(accounts) {
 
   it("should withdraw correct amount", async () => {
     const bank = await SimpleBank.deployed();
-    const deposit = 5;
+    const deposit = 5 * ether;
 
     await bank.deposit({from: alice, value: web3.toBigNumber(deposit)});
     await bank.withdraw(web3.toBigNumber(deposit), {from: alice});
@@ -82,10 +83,10 @@ contract("SimpleBank - incorrect withdrawal", function(accounts) {
 
   it("should keep balance unchanged if withdraw greater than balance", async() => {
     const bank = await SimpleBank.deployed();
-    const deposit = 3;
+    const deposit = 3 * ether;
 
     await bank.deposit({from: alice, value: web3.toBigNumber(deposit)});
-    await bank.withdraw(web3.toBigNumber(deposit+1), {from: alice});
+    await bank.withdraw(web3.toBigNumber(deposit + 1*ether), {from: alice});
 
     const balance = await bank.balance({from: alice});
     assert.equal(balance, deposit, "balance should be kept intact");
@@ -97,7 +98,7 @@ contract("SimpleBank - fallback works", function(accounts) {
 
   it("should revert ether sent to this contract through fallback", async() => {
     const bank = await SimpleBank.deployed();
-    const deposit = 3;
+    const deposit = 3 * ether;
 
     try {
       await bank.send(web3.toBigNumber(deposit), {from: alice});
