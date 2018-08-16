@@ -54,8 +54,8 @@ contract SimpleBank {
            to the user attempting to withdraw. IF the send fails, add the amount back to the user's balance
            return the user's balance.*/
         if (withdrawAmount <= balances[msg.sender]) {
-            msg.sender.transfer(withdrawAmount);
             balances[msg.sender] -= withdrawAmount;
+            msg.sender.transfer(withdrawAmount);
         }
         return balances[msg.sender];
     }
