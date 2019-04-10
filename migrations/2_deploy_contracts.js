@@ -1,5 +1,7 @@
+const ether = 10**18; // 1 ether = 1000000000000000000 wei
+
 var SimpleBank = artifacts.require("./SimpleBank.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(SimpleBank, { value: 30000000000000000000 });
+  deployer.deploy(SimpleBank, { value: 3 * ether });
 };

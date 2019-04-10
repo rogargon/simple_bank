@@ -1,4 +1,4 @@
-pragma solidity ^0.4.22;
+pragma solidity ^0.5;
 
 
 contract SimpleBank {
@@ -17,7 +17,7 @@ contract SimpleBank {
     // Constructor, can receive one or many variables here; only one allowed
     // Initial funding of 30 required to reward the first 3 clients
     constructor() public payable {
-        require(msg.value == 30 ether, "Initial funding of 30 ether required for rewards");
+        require(msg.value == 3 ether, "Initial funding of 3 ether required for rewards");
         /* Set the owner to the creator of this contract */
         owner = msg.sender;
         clientCount = 0;
@@ -28,7 +28,7 @@ contract SimpleBank {
     function enroll() public returns (uint) {
         if (clientCount < 3) {
             clientCount++;
-            balances[msg.sender] = 10 ether;
+            balances[msg.sender] = 1 ether;
         }
         return balances[msg.sender];
     }
@@ -64,12 +64,12 @@ contract SimpleBank {
     /// @return The balance of the user
     // A SPECIAL KEYWORD prevents function from editing state variables;
     // allows function to run locally/off blockchain
-    function balance() public constant returns (uint) {
+    function balance() public view returns (uint) {
         /* Get the balance of the sender of this transaction */
         return balances[msg.sender];
     }
 
-    function depositsBalance() public constant returns (uint) {
+    function depositsBalance() public view returns (uint) {
         return address(this).balance;
     }
 
@@ -78,7 +78,7 @@ contract SimpleBank {
     // Typically, called when invalid data is sent
     // Added so ether sent to this contract is reverted if the contract fails
     // otherwise, the sender's money is transferred to contract
-    function() public payable {
+    function() external payable {
         revert(); //The same behaviour if made not payable or if fallback omitted
     }
 }
