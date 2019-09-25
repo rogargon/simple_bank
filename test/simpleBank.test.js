@@ -1,8 +1,8 @@
 var SimpleBank = artifacts.require("./SimpleBank.sol");
 
 const ether = 10**18; // 1 ether = 1000000000000000000 wei
-const reward = 1 * ether;
-const initialDepositsBalance = 3 * ether;
+const reward = 10 * ether;
+const initialDepositsBalance = 30 * ether;
 
 contract("SimpleBank - basic initialization", function(accounts) {
   const alice = accounts[1];
@@ -10,7 +10,7 @@ contract("SimpleBank - basic initialization", function(accounts) {
   const charlie = accounts[3];
   const dave = accounts[4];
 
-  it("should reward 3 first clients with 1 balance", async () => {
+  it("should reward 3 first clients with 10 balance", async () => {
     const bank = await SimpleBank.deployed();
 
     await bank.enroll({from: alice});
@@ -35,27 +35,21 @@ contract("SimpleBank - basic initialization", function(accounts) {
 
   it("should deposit correct amount", async () => {
     const bank = await SimpleBank.deployed();
-    const deposit = 0.2 * ether;
+    const deposit = 2 * ether;
 
-    await bank.deposit({from: alice, value: web3.utils.toBN(deposit)});
+    const receipt = await bank.deposit({from: alice, value: web3.utils.toBN(deposit)});
 
     const balance = await bank.balance({from: alice});
     assert.equal(balance, reward + deposit,
         "deposit amount incorrect, check deposit method");
     const depositsBalance = await bank.depositsBalance();
-    assert.equal(depositsBalance, initialDepositsBalance+deposit,
+    assert.equal(depositsBalance, initialDepositsBalance + deposit,
         "bank deposits balance should be increased");
 
     const expectedEventResult = {accountAddress: alice, amount: deposit};
-
-    const log = await new Promise(function (resolve, reject) {
-      bank.getPastEvents('LogDepositMade', function (error, events) {
-        resolve(events[0].returnValues);
-      });
-    });
-    assert.equal(log.accountAddress, expectedEventResult.accountAddress,
+    assert.equal(receipt.logs[0].args.accountAddress, expectedEventResult.accountAddress,
         "LogDepositMade event accountAddress property not emitted");
-    assert.equal(log.amount, expectedEventResult.amount,
+    assert.equal(receipt.logs[0].args.amount, expectedEventResult.amount,
         "LogDepositMade event amount property not emitted");
   });
 });
@@ -65,7 +59,7 @@ contract("SimpleBank - proper withdrawal", function(accounts) {
 
   it("should withdraw correct amount", async () => {
     const bank = await SimpleBank.deployed();
-    const deposit = 0.1 * ether;
+    const deposit = 5 * ether;
 
     await bank.deposit({from: alice, value: web3.utils.toBN(deposit)});
     await bank.withdraw(web3.utils.toBN(deposit), {from: alice});
@@ -80,10 +74,10 @@ contract("SimpleBank - incorrect withdrawal", function(accounts) {
 
   it("should keep balance unchanged if withdraw greater than balance", async() => {
     const bank = await SimpleBank.deployed();
-    const deposit = 0.1 * ether;
+    const deposit = 3 * ether;
 
     await bank.deposit({from: alice, value: web3.utils.toBN(deposit)});
-    await bank.withdraw(web3.utils.toBN(deposit * 1.01), {from: alice});
+    await bank.withdraw(web3.utils.toBN(deposit + 1*ether), {from: alice});
 
     const balance = await bank.balance({from: alice});
     assert.equal(balance, deposit, "balance should be kept intact");
@@ -95,10 +89,10 @@ contract("SimpleBank - fallback works", function(accounts) {
 
   it("should revert ether sent to this contract through fallback", async() => {
     const bank = await SimpleBank.deployed();
-    const deposit = 0.1 * ether;
+    const deposit = 3 * ether;
 
     try {
-      await bank.send(web3.toBigNumber(deposit), {from: alice});
+      await bank.send(web3.utils.toBN(deposit), {from: alice});
     } catch(e) {
       assert(e, "Error: VM Exception while processing transaction: revert");
     }
